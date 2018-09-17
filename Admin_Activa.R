@@ -39,7 +39,7 @@ tkt_1<-as.character(tk[,1])
 
 cs <- c("date", "adj_close")
 Capital_Inicial <- 10000
-fs = c("2015-01-20","2018-01-20") # por la c es vector de caracteres 
+fs = c("2016-01-20","2018-01-20") # por la c es vector de caracteres 
 
 # Descargar Precios y Calcular rendimientos
 Datos <- list()
@@ -48,6 +48,13 @@ for(i in 1:length(tkt_1))
   Datos[[i]] <- Bajar_Precios(Columns=cs, Ticker=tkt_1[i], Fecha_In=fs[1], Fecha_Fn=fs[2])
 
 names(Datos) <- tkt_1
+# ordenamos las fecha para que esten de pasadas a actuales
+for (i in 1: length(tkt_1)){
+  Datos[[i]] <- Datos[[i]][order(Datos[[i]][,1]),]
+}
+
+
+
 ##-------------------
 longitudes<-c()
 
