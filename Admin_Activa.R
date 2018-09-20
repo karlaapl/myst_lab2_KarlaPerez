@@ -13,6 +13,9 @@ suppressMessages(library(Quandl)) # Descarga de Precios
 suppressMessages(library(PortfolioAnalytics)) ##Teoria modenar de portafolio
 suppressMessages(library(ROI)) # optimización para ele portafolio 
 suppressMessages(library(knitr))  
+suppressMessages(library(xlsx))
+suppressMessages(library(plyr))
+suppressMessages(library(readxl)) 
 suppressMessages(library(kableExtra)) # Tablas en HTML
 options(knitr.table.format = "html") 
 
@@ -62,9 +65,19 @@ for (i in 1:length(Datos)){
   longitudes[i]<-length(Datos[[i]]$date)
 }
 
-maximo<-max(longitudes)
+#maximo<-max(longitudes)
+#completos<-which(longitudes==maximo)
 
-completos<-which(longitudes==maximo)
+
+#Solución longitudes------------------------------------
+#Se obtienen los números en el vector y la frequencia de cada uno
+longs<-count(longitudes)
+# se obtien el valor que tuvo mayor frequencia
+lon<-longs[which.max(longs$freq),1]
+#se guardan los datos que tienen la misma freq
+completos<-which(longitudes==lon)
+
+#--------------------------------------------------------
 
 DatosN <-Datos[completos]
 #Vector  para almacenar las columnas
@@ -107,7 +120,7 @@ Historico<-data.frame("Date" = row.names(Precios),
 #R_Precio, rendimiento diario del precio(diario, de un dia a otro)
 #R_activo, rendimiento acumulado del precio 
 #Balance, valor del portafolio
-#titulos  acciones que se tienen 
+#titulos  ejecutados
 #titulos_a titulos acumulados
 #R_cuenta, balance+ capital 
 #operaciones, indica si son de compra o de venta(1 compra, 0 mantengo, -1 venta)
@@ -161,7 +174,7 @@ for(i in 1:length(Historico$Date)){
 
 for(i in 2:length(Historico$Date)){
   
-  if(Historico$R_Precio[i] <= Regla0_R){ # Generar Se?al
+  if(Historico$R_Precio[i] <= Regla0_R){ # Generar Señal
     
     # Establecer capital actual, inicialmente, igual al capital anterior
     Historico$Capital[i] <- Historico$Capital[i-1]
@@ -189,7 +202,7 @@ for(i in 2:length(Historico$Date)){
     
     
   }
-  else { # Sin se?al
+  else { # Sin señal
     
   }
   
