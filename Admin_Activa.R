@@ -113,7 +113,7 @@ Historico<-data.frame("Date" = row.names(Precios),
                       "R_Cuenta" = 0,
                       "Capital" = 0,
                       "Balance" = 0,"Titulos" = 0 ,"Titulos_a" = 0,
-                      "Operacion" = NA, "Comisiones" = 0, "Mensaje" = NA)
+                      "Operacion" = NA, "Comisiones" = 0,"Comisiones_a"= 0, "Mensaje" = NA)
 
 #Date fecha
 #Precio del activo 
@@ -127,7 +127,7 @@ Historico<-data.frame("Date" = row.names(Precios),
 #Comisiones 0.0025  por el valor de la transacción
 # Mensaje, Texto que indique la decisión o  que informe algo ocurrido
 
-Regla0_R <- -0.03 # Considera una oportunidad de compra  cuando el activo empiece a bajar su rendimiento de -3% o menor 
+Regla0_R <- -0.015 # Considera una oportunidad de compra  cuando el activo empiece a bajar su rendimiento de -3% o menor 
 Regla1_I <- 0.2 # Porcentaje de capital que se utiliza para la operación inicial 
 Regla2_P <- 0.25 # Se utiliza  el =% del L capital restante en cada compra
 Regla3_W <- tk_completos # se realiza la misma estrategia para todos los activos en el portafolio 
@@ -141,9 +141,11 @@ Regla5_K <- 1000000 #Capital inicial
 
 # -- Calcular los Titulos de posicion inicial
 Historico$Titulos[1] <- (Regla5_K*Regla1_I)%/%Historico$Precio[1]
+Historico$Titulos_a[1] <- Historico$Titulos[1]
 
 # -- Se calculan comisiones iniciales
 Historico$Comisiones[1] <- Historico$Titulos[1]*Historico$Precio[1]*Regla4_C
+Historico$Comisiones_a[1] <-Historico$Comisiones[1]
 
 # -- Calcular el Balance
 Historico$Balance[1] <- Historico$Titulos[1]*Historico$Precio[1]
@@ -166,53 +168,78 @@ Historico$R_Precio <- round(c(0, diff(log(Historico$Precio))),4)
 # -- Calcular R_Activo
 for(i in 1:length(Historico$Date)){
   Historico$R_Activo[i] <- round((Historico$Precio[i]/Historico$Precio[1])-1,2)
-}
 
+}
 # -- ------------------------------------ -- #
 # -- ------------------------------------ -- #
 # -- ------------------------------------ -- #
 
 for(i in 2:length(Historico$Date)){
-  
-  if(Historico$R_Precio[i] <= Regla0_R){ # Generar Señal
-    
+
+  if(Historico$R_Precio[i] <= Regla0_R){ 
     # Establecer capital actual, inicialmente, igual al capital anterior
     Historico$Capital[i] <- Historico$Capital[i-1]
-    
+  }# Generar Señal
+
     if(Historico$Capital[i] > 0){ # Si hay capital
-      
+
       if(Historico$Capital[i]*Regla2_P > Historico$Precio[i]){ # Si Capital minimo
-        
+
         Historico$Operacion[i] <- "Compra"
         Historico$Titulos[i]   <- (Historico$Capital[i]*Regla2_P)%/%Historico$Precio[i]
-        
-        compra <- Historico$Precio[i]*Historico$Titulos[i]  
+
+        compra <- Historico$Precio[i]*Historico$Titulos[i]
         Historico$Comisiones[i] <- compra*Regla4_C
-        
-        Historico$Titulos_a[i] <- Historico$Titulos[i-1]+Historico$Titulos[i]
-        
-        
-      }
+        Historico$Comisiones_a[i] <- Historico$Comisiones_a[i-1]+Historico$Comisiones[i]
+
+        Historico$Titulos_a[i] <- Historico$Titulos_a[i-1]+Historico$Titulos[i]
+        Historico$Mensaje[i] <- "Compra Exitosa"
+        Historico$Balance[i] <- Historico$Precios[i]*Historico$Titulos_a[i]-Historico$Comisiones[i]
       
-    }
+        
+        Historico$Capital[i] <- Historico$Capital[i-1]-compra-Historico$Comisiones[i]
+        Historico$R_Cuenta[i] <- Historico$Capital[i]+Historico$Balance[i]
+       
+
+      } # cierre si hay capital
+      else {
+        Historico$Mensaje[i] <- "Si hubo capital, pero no alcanzó "
+        
+      } #cierre no alcanzó el capital
+      
+
+    
     else { # No hubo capital
       
-      
+
     }
-    
-    
-  }
-  else { # Sin señal
-    
-  }
+
+
   
-}
+  else { # Sin señal
+    Historico$Capital[i] <- Historico$Capital[i-1]
+    
+    Historico$Titulos[i] <- 0 # no hubo movimiento
+    Historico$Titulos_a[i] <- Historico$Titulos[i]+Historico$Titulos_a[i-1]
+    Historico$Balance[i] <- Historico$Titulos_a[i]*Historico$Precios[i]
+    Historico$R_Cuenta[i] <- Historico$Capital[i]+Historico$Balance[i]
+    Historico$Operacion[i] <- "Mantiene"
+    Historico$Comisiones[i] <- 0
+    Historico$Comisiones_a[i] <- Historico$Comisiones_a[i-1]+Historico$Comisiones[i]
+    Historico$Mensaje[i] <- "No hubo señal de c "
+    Historico
+    
+    
+  }
+
+  
 
 
 
 
 
-
+    }
+  }
 
 
 
