@@ -33,8 +33,8 @@ Bajar_Precios <- function(Columns, Tickers, Fecha_In, Fecha_Fn) {
 #tk<-(read.xlsx(file="C:/Users/perezka/OneDrive - HP/Karla/Karla/Trading/myst_lab2_KarlaPerez/Etf_farma.xlsx", sheetName="Holdings",
 #                            colIndex=1,startRow=10,endRow=54,header=FALSE))
 
-tk<-(read.xlsx(file="C:/Users/perezka/OneDrive - HP/Karla/Karla/Trading/myst_lab2_KarlaPerez/Etf_data.xlsx", sheetName="Holdings",
-               colIndex=1,startRow=1,endRow=66,header=TRUE))
+tk<-(read.xlsx(file="C:/Users/perezka/OneDrive - HP/Karla/Karla/Trading/myst_lab2_KarlaPerez/Etf_farma.xlsx", sheetName="Holdings",
+               colIndex=1,startRow=10,endRow=54,header=TRUE))
 #tk<- read_excel("C:/Users/perezka/OneDrive - HP/Karla/Karla/Trading/myst_lab2_KarlaPerez/Etf_data.xlsx", sheet = 1, col_names = TRUE, col_types = NULL, na = "", skip = 0)
 
 tkt_1<-as.character(tk[,1])
@@ -151,11 +151,12 @@ Historico$Comisiones_a[1] <-Historico$Comisiones[1]
 
 # -- Calcular el Balance y flotante
 #Historico$Balance[1] <-Historico$Titulos_a[1]*Historico$Precios[1] ya no por el cambio de flotante
-Historico$Balance[1] <- Historico$Flotante[1]*Historico$Capital[1]
+Historico$Flotante[1] <- Historico$Precios[1]*Historico$Titulos
+
 
 # -- Todo remanente se dejar? registrado en la cuenta de efectivo.
 Historico$Capital[1] <- Regla5_K-Historico$Flotante[1]-Historico$Comisiones[1]
-
+Historico$Balance[1] <- Historico$Flotante[1]+Historico$Capital[1]
 # -- Iniciamos con una postura de mantener.
 Historico$Operacion[1] <- "Posicion Inicial"
 
@@ -285,6 +286,8 @@ plot_ly(Historico) %>% # signo para agregar   las capas que se quieran
          legend = list(orientation = 'h', y = -0.25, x = 0.5))
 
 ###---- Metrico efectividad
-  SharpeRatio(R=xts(x = Historico$R_Activo,order.by = as.Date(Historico$Date)),Rf =0.0225, FUN ="StdDev" )
-  SharpeRatio(R=xts(x = Historico$R_Cuenta,order.by = as.Date(Historico$Date)),Rf =0.0225, FUN ="StdDev" )
-
+sharpe_A <- SharpeRatio(R=xts(x = Historico$R_Activo,order.by = as.Date(Historico$Date)),Rf =0.0225, FUN ="StdDev" )
+sharpe_C <- SharpeRatio(R=xts(x = Historico$R_Cuenta,order.by = as.Date(Historico$Date)),Rf =0.0225, FUN ="StdDev" )
+  
+sortino_a <- SortinoRatio(R=xts(x = Historico$R_Activo,order.by = as.Date(Historico$Date)),MAR =0.0225)
+sortino_c <-SortinoRatio(R=xts(x = Historico$R_Cuenta,order.by = as.Date(Historico$Date)),MAR =0.0225)
