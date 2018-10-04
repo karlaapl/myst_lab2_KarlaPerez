@@ -130,7 +130,7 @@ Historico<-data.frame("Date" = row.names(Precios),
 # Flotante, el valor de los titulos acumulados por el precio del activo en el dia  pecio diario por titulos acumulados
 
 Regla0_R <- -0.015 # Considera una oportunidad de compra  cuando el activo empiece a bajar su rendimiento de -3% o menor 
-Regla1_I <- 0.2 # Porcentaje de capital que se utiliza para la operación inicial 
+Regla1_I <- 0.1 # Porcentaje de capital que se utiliza para la operación inicial 
 Regla2_P <- 0.25 # Se utiliza  el =% del L capital restante en cada compra
 Regla3_W <- tk_completos # se realiza la misma estrategia para todos los activos en el portafolio 
 Regla4_C <- -0.0025 #comisiones pagadas
