@@ -136,7 +136,7 @@ for (aux in 1:length(tk_completos)){
 # Flotante, el valor de los titulos acumulados por el precio del activo en el dia  pecio diario por titulos acumulados
 
 Regla0_R <- -0.015 # Considera una oportunidad de compra  cuando el activo empiece a bajar su rendimiento de -3% o menor 
-Regla1_I <- 0.1 # Porcentaje de capital que se utiliza para la operación inicial 
+Regla1_I <- 0.25 # Porcentaje de capital que se utiliza para la operación inicial 
 Regla2_P <- 0.25 # Se utiliza  el =% del L capital restante en cada compra
 Regla3_W <- tk_completos # se realiza la misma estrategia para todos los activos en el portafolio 
 Regla4_C <- -0.0025 #comisiones pagadas
@@ -146,7 +146,9 @@ Regla5_K <- 1000000 #Capital inicial
 # -- ----------------------------------------------------------------------------------------- -- #
 # -- ----------------------------------------------------------------------------------------- -- #
 # -- ----------------------------------------------------------------------------------------- -- #
+ 
 
+# Para todos los títulosd el etf
 # -- Calcular los Titulos de posicion inicial
 Historico[[aux]]$Titulos[1] <- (Regla5_K*Regla1_I)%/%Historico[[aux]]$Precio[1]
 Historico[[aux]]$Titulos_a[1] <- Historico[[aux]]$Titulos[1]
@@ -299,4 +301,26 @@ sortino_a[[aux]] <- SortinoRatio(R=xts(x = Historico[[aux]]$R_Activo,order.by = 
 sortino_c[[aux]] <-SortinoRatio(R=xts(x = Historico[[aux]]$R_Cuenta,order.by = as.Date(Historico[[aux]]$Date)),MAR =0.0225)
 }
 
-#Portafolio
+# #Portafolio
+# Rend_bal <- c()
+#  for(i in 1:length(Historico))
+#    i = 1 
+#    Rend_bal[[i]] <- c(0, diff(log(Historico[[i]]$Balance)))
+# 
+# Rend_bal = xts(x = cbind(Datos[[1]]$adj_close_r, Datos[[2]]$adj_close_r, Datos[[3]]$adj_close_r),
+#     order.by = Datos[[1]]$date)[-1]
+# 
+# names(Rend_bal) <- tk_completos
+# Port <- portfolio.spec(assets=tk_completos)
+# # Agregando restricciones
+# 
+# Port1 <- add.constraint(portfolio=Port, type="full_investment")
+# Port1 <- add.constraint(portfolio=Port, type="box", min=c(0.01, 0.01, 0.01), max=c(0.7, 0.7, 0.7))
+# Port1 <- add.objective(portfolio = Port, type = "return", name = "mean")
+# Port1 <- optimize.portfolio(R=Rend_bal, portfolio = Port, optimize_method = "random", trace = TRUE, search_size =5000)#
+#Portafolios <- vector("list", length = length(Port$random_portfolio_objective_results))
+# 
+# 
+#  Conclusiones, la mejor combinación de  las reglas que encontré son las que deje
+#comentada, se hace el cálculo para  todos los activos del etf y con lo del portafolio llega
+# a hacer los rendimientos del balance más no lo pude acomodar.
